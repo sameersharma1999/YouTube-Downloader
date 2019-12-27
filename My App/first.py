@@ -1,3 +1,5 @@
+import getpass
+
 from pytube import YouTube
 from pytube import exceptions
 import pytube
@@ -79,7 +81,8 @@ class UserInteraction:
     def download(self):
         self.selected_stream = self.stream_list[self.choose-1]
         print('Downloading...')
-        self.selected_stream.download('..\\Downloads')
+        username = getpass.getuser()  # it returns us the username of pc (as username is different for different pc's)
+        self.selected_stream.download(f'C:\\Users\\{username}\\Downloads')
         print('\nDownloaded Successfully...')
         self.next()
 
