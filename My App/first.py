@@ -9,7 +9,6 @@ from urllib import error
 class UserInteraction:
     def __init__(self):
         self.choice = None
-        self.choose = None
         self.get_url = None
         self.url = None
         self.stream_list = None
