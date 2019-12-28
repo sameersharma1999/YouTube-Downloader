@@ -43,41 +43,51 @@ class UserInteraction:
             print('Thumbnail: ' + self.url.thumbnail_url)
         except KeyError:
             print('Thumbnail: ' + 'Not available')
-        self.choose_stream()
 
     def menu(self):
         print('\n**** MENU (Select the download type) ****')
         for index, data in enumerate(self.menu_list, start=1):
             print(f'{index}.{data}')
-        self.menu_choice = int(input('\nEnter your selection(like enter 7 for All files): '))
+        try:
+            self.menu_choice = int(input('\nEnter your selection(like enter 7 for All files): '))
+        except ValueError:
+            print('\nYou entered wrong choice... Please re enter your choice....')
+            self.menu()
         if self.menu_choice == 1:
-            return self.url.streams.filter(progressive=True).all()
+            self.stream_list = self.url.streams.filter(progressive=True).all()
         elif self.menu_choice == 2:
-            return self.url.streams.filter(adaptive=True).all()
+            self.stream_list = self.url.streams.filter(adaptive=True).all()
         elif self.menu_choice == 3:
-            return self.url.streams.filter(only_audio=True).all()
+            self.stream_list = self.url.streams.filter(only_audio=True).all()
         elif self.menu_choice == 4:
-            return self.url.streams.filter(only_video=True).all()
+            self.stream_list = self.url.streams.filter(only_video=True).all()
         elif self.menu_choice == 5:
-            return self.url.streams.filter(file_extension='mp4').all()
+            self.stream_list = self.url.streams.filter(file_extension='mp4').all()
         elif self.menu_choice == 6:
-            return self.url.streams.filter(file_extension='webm').all()
+            self.stream_list = self.url.streams.filter(file_extension='webm').all()
         elif self.menu_choice == 7:
-            return self.url.streams.all()
+            self.stream_list = self.url.streams.all()
         else:
-            print('You entered wrong choice')
-            self.choose_stream()
+            print('\nYou entered wrong choice... Please re enter your choice....')
+            self.menu()
 
     def choose_stream(self):
-        self.stream_list = self.menu()
         print('\nAvailable files...')
         for index, data in enumerate(self.stream_list, start=1):
             print(f'Press {index} to Download =>  {data}')
-        self.choose = int(input('Enter here: ').strip())
+        try:
+            self.choose = int(input('Enter here: ').strip())
+        except ValueError:
+            print('\nYou entered wrong choice... Please re enter your choice....')
+            self.choose_stream()
         self.download()
 
     def download(self):
-        self.selected_stream = self.stream_list[self.choose-1]
+        try:
+            self.selected_stream = self.stream_list[self.choose-1]
+        except IndexError:
+            print('\nYou entered wrong choice... Please re enter your choice....')
+            self.choose_stream()
         print('Downloading...')
         username = getpass.getuser()  # it returns us the username of pc (as username is different for different pc's)
         self.selected_stream.download(f'C:\\Users\\{username}\\Downloads')
@@ -94,3 +104,5 @@ class UserInteraction:
 
 obj = UserInteraction()
 obj.enter_url()
+obj.menu()
+obj.choose_stream()
