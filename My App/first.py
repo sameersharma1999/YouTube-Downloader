@@ -1,5 +1,4 @@
 import getpass
-
 from pytube import YouTube
 from pytube import exceptions
 import pytube
