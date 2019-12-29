@@ -80,7 +80,6 @@ class UserInteraction:
         except ValueError:
             print('\nYou entered wrong choice... Please re enter your choice....')
             self.choose_stream()
-        self.download()
 
     def download(self):
         try:
@@ -97,12 +96,18 @@ class UserInteraction:
     def next(self):
         self.choice = input('\n\nDo u want to download more(Y/N): ').strip().lower()
         if self.choice == 'y':
-            self.enter_url()
+            run()
         else:
             exit()
 
 
-obj = UserInteraction()
-obj.enter_url()
-obj.menu()
-obj.choose_stream()
+def run():
+    obj = UserInteraction()
+    obj.enter_url()
+    obj.menu()
+    obj.choose_stream()
+    obj.download()
+
+
+run()
+
