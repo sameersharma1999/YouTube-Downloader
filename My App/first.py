@@ -32,9 +32,7 @@ class UserInteraction:
         except urllib.error.URLError:
             print('Unable to download: Please check your internet connection...')
             self.next()
-        except KeyError as e:
-            # print('hello world')
-            print(e)
+        except KeyError:
             print('\nSORRY!!, there is a problem in the package(pytube)\nPlease try another video...')
             self.next()
         except Exception as e:
