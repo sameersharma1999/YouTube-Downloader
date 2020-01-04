@@ -8,6 +8,7 @@ from urllib import error
 
 class UserInteraction:
     def __init__(self):
+        self.size = None
         self.choice = None
         self.get_url = None
         self.url = None
@@ -31,7 +32,9 @@ class UserInteraction:
         except urllib.error.URLError:
             print('Unable to download: Please check your internet connection...')
             self.next()
-        except KeyError:
+        except KeyError as e:
+            # print('hello world')
+            print(e)
             print('\nSORRY!!, there is a problem in the package(pytube)\nPlease try another video...')
             self.next()
         except Exception as e:
@@ -84,6 +87,7 @@ class UserInteraction:
     def download(self):
         try:
             self.selected_stream = self.stream_list[self.choose-1]
+            print('FileSize : ' + str(round(self.selected_stream.filesize / (1024 * 1024))) + 'MB')
         except IndexError:
             print('\nYou entered wrong choice... Please re enter your choice....')
             self.choose_stream()
