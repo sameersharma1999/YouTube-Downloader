@@ -259,6 +259,7 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
             self.msg.setWindowTitle('Download')
             self.msg.setText('Downloaded Successfully')
             self.msg.setIcon(QMessageBox.Information)
+            self.download_button.setEnabled(False)
             self.msg.exec_()
 
         elif self.flag == 0:
@@ -269,6 +270,7 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
             self.msg.setWindowTitle('Download')
             self.msg.setText('Downloaded Successfully')
             self.msg.setIcon(QMessageBox.Information)
+            self.download_button.setEnabled(False)
             self.msg.exec_()
             self.change_names()
 
