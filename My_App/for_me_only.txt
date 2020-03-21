@@ -1,0 +1,31 @@
+###################   About call back function  ###############
+
+here we apply a callback function on the YouTube() function ... to get the url ...
+as we know the first argument of the function is url of the youtube video that we need,
+and second argument we can apply the callback function....
+
+we can call that callback function either at every chunk we receive....
+for that we have to use on_progress_callback as a keyword then apply a function to it
+and that function will run for every chunk we get (see example given below)
+YouTube(my_url, on_progress_callback=my_callback_function)
+
+or at the end of all the chunks we receive...
+for that we have to use on_complete_callback as a keyword then apply a function to it
+and that function will run after we receive every chunk (see example given below)
+YouTube(my_url, on_complete_callback=my_callback_function)
+
+Here we will talk about at every chunk we receive...........
+
+Before that... What is chunk?
+   a chunk is set of data in bits/bytes that we receive, we receive the data in chunks we can check the size of chunk(idk how, but u can....google it out)
+
+now... 
+At definition of our callback function will be having 5 arguments ie. self, stream, chunk, file_handle, bytes_remaining
+(actually these values u got when u get the url when u run YouTube() function)
+therfore u need to receive these 5 values .......
+
+first is self (u know it already)
+second is stream (u know this also already)
+third is chunk (chunk is data in bits/bytes)
+fourth if file_handle (path where file will be downloaded)
+bytes_remaning (number of bytes that are remaining to download)

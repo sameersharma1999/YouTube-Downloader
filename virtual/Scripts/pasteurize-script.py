@@ -1,4 +1,4 @@
-#!"e:\learning stuff\downloading videos from youtube\virtual\scripts\python.exe"
+#!"e:\my projects\youtube video downloader\virtual\scripts\python.exe"
 # EASY-INSTALL-ENTRY-SCRIPT: 'future==0.18.2','console_scripts','pasteurize'
 __requires__ = 'future==0.18.2'
 import re

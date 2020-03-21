@@ -27,7 +27,7 @@ function global:deactivate ([switch]$NonDestructive) {
 
 deactivate -nondestructive
 
-$env:VIRTUAL_ENV="E:\Learning Stuff\Downloading videos from YouTube\virtual"
+$env:VIRTUAL_ENV="E:\My projects\YouTube video downloader\virtual"
 
 if (! $env:VIRTUAL_ENV_DISABLE_PROMPT) {
     # Set the prompt to include the env name
