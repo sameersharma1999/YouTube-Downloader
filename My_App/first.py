@@ -7,8 +7,9 @@ import getpass
 from pytube import YouTube
 from pytube import exceptions
 import pytube
-import urllib
+from urllib import parse
 from urllib import error
+import urllib
 import os
 import subprocess
 from random import randint
@@ -36,6 +37,9 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
         self.username = None
         self.video_stream = None
         self.audio_stream = None
+        self.size = None
+        self.audio_size = None
+        self.video_size = None
         self.audio_video_list = []
         self.video_list = []
         self.audio_list = []
@@ -48,7 +52,7 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
         self.download_button.clicked.connect(self.download)
 
     def progress_fun(self, chunk, file_handle, bytes_remaining):
-        percent = int((100*(self.selected_stream.filesize-bytes_remaining))/self.selected_stream.filesize)  # here we receive the percentage of bytes we get/downloaded
+        percent = int((100*(self.selected_stream.filesize-bytes_remaining))/self.size)  # here we receive the percentage of bytes we get/downloaded
         self.progressBar.setValue(percent)
 
     def clear_info(self):
@@ -74,6 +78,9 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
         self.video_list = []
         self.audio_list = []
         self.progressBar.setValue(0)
+        self.size = None
+        self.audio_size = None
+        self.video_size = None
 
     def enter_url(self):
         try:
@@ -145,8 +152,7 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
             print(e)
 
     def download_thumbnail(self, image):
-        img = image.split('.')
-        extension = img.pop()
+        file_name, extension = os.path.splitext(os.path.basename(urllib.parse.urlsplit(image).path))
         image_name = 'image.'+extension
         r = requests.get(image).content
         with open(f'..\\temp\\{image_name}', 'wb') as f:
@@ -218,7 +224,7 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for stream in self.stream_list:  # manage above 3 lists
             str_stream = str(stream)
-
+            # print(str_stream)
             if 'acodec=' in str_stream and 'vcodec=' in str_stream:
                 self.audio_video_list.append(stream)
             elif 'vcodec=' in str_stream:
@@ -236,20 +242,40 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.flag = 1
                 self.selected_stream = stream
                 self.file_size_label.setText(str(round((self.selected_stream.filesize/1024)/1024, 2)) + 'mb')
+                self.size = self.selected_stream.filesize
             else:
                 self.flag = 0
                 self.get_audio_video(res)
 
     def get_audio_video(self, resolution):
-        for video in self.video_list:
-            split_stream = str(video).split(' ')
-            if f'res="{resolution}"' in split_stream:
-                self.video_stream = video
-        for audio in self.audio_list:
-            s_s = str(audio).split(' ')
-            if 'mime_type="audio/mp4"' in s_s:
-                self.audio_stream = audio
-        self.file_size_label.setText(str(round(((self.video_stream.filesize + self.audio_stream.filesize) / 1024) / 1024, 2)) + 'mb')
+        try:
+            for video in self.video_list:
+                split_stream = str(video).split(' ')
+                if f'res="{resolution}"' in split_stream:
+                    self.video_stream = video
+            for audio in self.audio_list:
+                s_s = str(audio).split(' ')
+                if 'mime_type="audio/mp4"' in s_s:
+                    self.audio_stream = audio
+            audio_size = ...
+            video_size = ...
+            try:
+                audio_size = self.audio_stream.filesize
+            except error.HTTPError as err:
+                if err.code == 404:
+                    audio_size = self.audio_stream.filesize_approx
+            try:
+                video_size = self.video_stream.filesize
+            except error.HTTPError as err:
+                if err.code == 404:
+                    video_size = self.video_stream.filesize_approx
+            self.audio_size = audio_size
+            self.video_size = video_size
+            size = audio_size + video_size
+            self.size = str(round((size / 1024) / 1024, 2)) + 'mb'
+            self.file_size_label.setText(self.size)
+        except Exception as e:
+            print(e)
 
     def download(self):
         self.username = getpass.getuser()
@@ -261,18 +287,28 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
             self.msg.setIcon(QMessageBox.Information)
             self.download_button.setEnabled(False)
             self.msg.exec_()
-
         elif self.flag == 0:
-            self.selected_stream = self.video_stream
-            self.selected_stream.download('..\\temp_v')
-            self.selected_stream = self.audio_stream
-            self.selected_stream.download('..\\temp_a')
-            self.msg.setWindowTitle('Download')
-            self.msg.setText('Downloaded Successfully')
-            self.msg.setIcon(QMessageBox.Information)
-            self.download_button.setEnabled(False)
-            self.msg.exec_()
-            self.change_names()
+            try:
+                self.selected_stream = self.video_stream
+                self.size = self.video_size
+                print(self.selected_stream)
+                self.selected_stream.download('..\\temp_v')
+                self.selected_stream = self.audio_stream
+                self.size = self.audio_size
+                self.selected_stream.download('..\\temp_a')
+                self.msg.setWindowTitle('Download')
+                self.msg.setText('Downloaded Successfully')
+                self.msg.setIcon(QMessageBox.Information)
+                self.download_button.setEnabled(False)
+                self.msg.exec_()
+                self.change_names()
+            except Exception as e:
+                print(e)
+                self.msg.setWindowTitle('Error')
+                self.msg.setText('Resolution not available\n'
+                                 'please try the video with another resolution')
+                self.msg.setIcon(QMessageBox.Warning)
+                self.msg.exec_()
 
     def change_names(self):   # Changed audio video file names
         for _, _, file_names in os.walk('..\\temp_a'):  # changed audio file name
@@ -289,7 +325,7 @@ class UserInteraction(QtWidgets.QMainWindow, Ui_MainWindow):
         audio_file = '..\\temp_a\\audio.mp4'
         random_number = str(randint(0, 1000000))
         output_file = f'C:\\Users\\{self.username}\\Downloads\\download{random_number}.mov'
-        subprocess.run(f"ffmpeg -i {video_file} -i {audio_file} -c copy {output_file}")
+        subprocess.run(f"ffmpeg -i {audio_file} -i {video_file} -acodec copy -vcodec copy {output_file}")
         self.delete_audio_video()
 
 
